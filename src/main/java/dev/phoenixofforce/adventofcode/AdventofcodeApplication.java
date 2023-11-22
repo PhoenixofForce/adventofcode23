@@ -41,7 +41,7 @@ public class AdventofcodeApplication {
 		if(today.getMonthValue() == 12) {
 			solveSingleDay(today.getDayOfMonth(), today.getYear());
 		} else {
-			solveSingleDay(23, 2021);
+			solveSingleDay(2, 2021);
 		}
 	}
 
@@ -50,16 +50,34 @@ public class AdventofcodeApplication {
 		DaysSolution solution = solveRiddle(day, year, input, true);
 		if(solution == null) return;
 
+		String lastSolution = "";
+		int part = 1;
+
 		System.out.println();
 		System.out.println("Part 1 (" + solution.part1Duration() + "ms)");
 		System.out.println("|" + solution.part1Solution() + "|");
+		System.out.println();
 		Clipboard.save(solution.part1Solution());
+		lastSolution = solution.part1Solution;
 
 		if(!(solution.part2Solution() == null || solution.part2Solution().isBlank())) {
-			System.out.println();
 			System.out.println("Part 2 (" + solution.part2Duration() + "ms)");
 			System.out.println("|" + solution.part2Solution() + "|");
+			System.out.println();
 			Clipboard.save(solution.part2Solution());
+			lastSolution = solution.part2Solution;
+			part = 2;
+		}
+
+		log.info("Do you want to upload the solution {} automatically? (Y/N)", lastSolution);
+		String uploadSolution = TimedInput.getChoiceWithTimeout(5);
+
+
+		if(uploadSolution != null && !uploadSolution.isEmpty() && uploadSolution.toLowerCase().charAt(0) == 'y') {
+			String response = fetcher.postAnswer(day, year, part, lastSolution);
+			System.out.println();
+			System.out.println(response.trim());
+			System.out.println();
 		}
 
 		System.out.println();
