@@ -5,11 +5,11 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,25 +39,53 @@ public class AdventofcodeApplication {
 		LocalDate today = LocalDate.now();
 
 		if(today.getMonthValue() == 12) {
-			solve(today.getDayOfMonth(), today.getYear());
+			solveSingleDay(today.getDayOfMonth(), today.getYear());
 		} else {
-			solve(4,2021);
+			solveSingleDay(23, 2021);
 		}
 	}
 
-	private void solve(int day, int year) {
-		PuzzleInput input = grabInput(day, year);
-		solveRiddle(day, year, input);
+	private void solveSingleDay(int day, int year) {
+		PuzzleInput input = grabInput(day, year, true);
+		DaysSolution solution = solveRiddle(day, year, input, true);
+		if(solution == null) return;
+
+		System.out.println();
+		System.out.println("Part 1 (" + solution.part1Duration() + "ms)");
+		System.out.println("|" + solution.part1Solution() + "|");
+		Clipboard.save(solution.part1Solution());
+
+		if(!(solution.part2Solution() == null || solution.part2Solution().isBlank())) {
+			System.out.println();
+			System.out.println("Part 2 (" + solution.part2Duration() + "ms)");
+			System.out.println("|" + solution.part2Solution() + "|");
+			Clipboard.save(solution.part2Solution());
+		}
+
+		System.out.println();
 	}
 
-	private PuzzleInput grabInput(int day, int year) {
+	private void solveYear(int year) {
+		for(int day = 1; day <= 25; day++) {
+			PuzzleInput input = grabInput(day, year, false);
+			DaysSolution solution = solveRiddle(day, year, input, false);
+
+			if(solution != null) {
+				System.out.println("Day " + day);
+				System.out.println("\tPart 1(" + solution.part1Duration + "ms): |" + solution.part1Solution + "|");
+				System.out.println("\tPart 2(" + solution.part2Duration + "ms): |" + solution.part2Solution + "|");
+			}
+		}
+	}
+
+	private PuzzleInput grabInput(int day, int year, boolean generateFiles) {
 		boolean isNew = false;
-		if(!FileUtils.doesFileExist(day, year)) {
+		if(!FileUtils.doesFileExist(day, year) && generateFiles) {
 			FileUtils.createInputFile(day, year);
 			isNew = true;
 		}
 
-		if(isNew || FileUtils.getFile(day, year).get().length() == 0) {
+		if((isNew || FileUtils.getFile(day, year).get().length() == 0) && generateFiles) {
 			String input = fetcher.getInputFromSite(day, year);
 			FileUtils.write2file(FileUtils.getFile(day, year).get(), input);
 		}
@@ -65,7 +93,7 @@ public class AdventofcodeApplication {
 		return new PuzzleInput(day, year);
 	}
 
-	private void solveRiddle(int day, int year, PuzzleInput input) {
+	private DaysSolution solveRiddle(int day, int year, PuzzleInput input, boolean generate) {
 		String packageSuffix = generator.getPackageSuffixForDay(day, year);
 
 		Optional<Puzzle> optionalPuzzle = puzzles.stream()
@@ -73,34 +101,28 @@ public class AdventofcodeApplication {
 				.findFirst();
 
 		if(optionalPuzzle.isEmpty()) {
-			log.error("No puzzle solver found in {}, generating template", packageSuffix);
-			generator.generateDay(day, year);
-			return;
+			if(generate) {
+				log.error("No puzzle solver found in {}, generating template", packageSuffix);
+				generator.generateDay(day, year);
+			}
+
+			return null;
 		}
 
 		Puzzle today = optionalPuzzle.get();
 
-		long start = System.currentTimeMillis();
+		long start = System.nanoTime();
 		String part1Solution = today.solvePart1(input).toString();
-		long part1Duration = System.currentTimeMillis() - start;
+		double part1Duration = (System.nanoTime() - start) / 1000.0;
 
-		start = System.currentTimeMillis();
+		start = System.nanoTime();
 		String part2Solution = today.solvePart2(input).toString();
-		long part2Duration = System.currentTimeMillis() - start;
+		double part2Duration = (System.nanoTime() - start) / 1000.0;
 
-		System.out.println();
-		System.out.println("Part 1 (" + part1Duration + "ms)");
-		System.out.println("|" + part1Solution + "|");
-		Clipboard.save(part1Solution);
-
-		if(!(part2Solution == null || part2Solution.isBlank())) {
-			System.out.println();
-			System.out.println("Part 2 (" + part2Duration + "ms)");
-			System.out.println("|" + part2Solution + "|");
-			Clipboard.save(part2Solution);
-		}
-
-		System.out.println();
+		return new DaysSolution(part1Solution, part1Duration, part2Solution, part2Duration);
 	}
+
+	private record DaysSolution(String part1Solution, double part1Duration,
+						String part2Solution, double part2Duration) {}
 
 }
