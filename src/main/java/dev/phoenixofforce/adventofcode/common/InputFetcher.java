@@ -74,7 +74,9 @@ public class InputFetcher {
                 int start = responseText.indexOf("<p>");
                 int end = responseText.indexOf("</p>", start);
 
-                return responseText.substring(start, end).substring(3);
+                String htmlTagRegex = "<[^>]*>";
+                return responseText.substring(start, end).substring(3)
+                    .replaceAll(htmlTagRegex, "");
             }
         } catch(Exception e) {
             log.warn(e.getMessage());

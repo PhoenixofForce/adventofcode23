@@ -7,9 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +22,11 @@ public class AdventofcodeApplication {
 	public static void main(String[] args) {
 		new SpringApplicationBuilder(AdventofcodeApplication.class)
 				.headless(false)
-				.run(args)
-				.close();
+				.run(args);
 	}
+
+	@Autowired
+	private final ApplicationContext context;
 
 	@Autowired
 	private final List<Puzzle> puzzles;
@@ -43,6 +46,9 @@ public class AdventofcodeApplication {
 		} else {
 			solveSingleDay(2, 2021);
 		}
+
+		((ConfigurableApplicationContext) context).close();
+		System.exit(0);
 	}
 
 	private void solveSingleDay(int day, int year) {
@@ -71,7 +77,6 @@ public class AdventofcodeApplication {
 
 		log.info("Do you want to upload the solution {} automatically? (Y/N)", lastSolution);
 		String uploadSolution = TimedInput.getChoiceWithTimeout(5);
-
 
 		if(uploadSolution != null && !uploadSolution.isEmpty() && uploadSolution.toLowerCase().charAt(0) == 'y') {
 			String response = fetcher.postAnswer(day, year, part, lastSolution);

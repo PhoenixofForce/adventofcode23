@@ -2,43 +2,34 @@ package dev.phoenixofforce.adventofcode.common;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.*;
 
 @Slf4j
 public class TimedInput {
 
+    private static final ExecutorService l = Executors.newFixedThreadPool(1);
+
     //https://stackoverflow.com/questions/61807890/user-input-with-a-timeout-in-java
     public static String getChoiceWithTimeout(int timeOutInSeconds) {
-        Callable<String> k = () -> new Scanner(System.in).nextLine();
-        long start = System.currentTimeMillis();
-        String choice = "";
-        boolean valid;
-        ExecutorService l = Executors.newFixedThreadPool(1);
-        Future<String> g;
-        g = l.submit(k);
+        Callable<String> callable = () -> new BufferedReader(new InputStreamReader(System.in)).readLine();
 
-        done: while (System.currentTimeMillis() - start < timeOutInSeconds * 1000) {
-            do {
-                valid = true;
-                if (g.isDone()) {
-                    try {
-                        choice = g.get();
-                        if (!choice.isEmpty()) {
-                            break done;
-                        } else {
-                            throw new IllegalArgumentException();
-                        }
-                    } catch (InterruptedException | ExecutionException | IllegalArgumentException e) {
-                        valid = false;
-                    }
+        LocalDateTime start = LocalDateTime.now();
+        Future<String> g = l.submit(callable);
+        while (ChronoUnit.SECONDS.between(start, LocalDateTime.now()) < timeOutInSeconds) {
+            if (g.isDone()) {
+                try {
+                    return g.get();
+                } catch (InterruptedException | ExecutionException | IllegalArgumentException e) {
+                    g = l.submit(callable);
                 }
-            } while (!valid);
+            }
         }
-
-        l.close();
         g.cancel(true);
-        return choice;
+        return null;
     }
 
 }
