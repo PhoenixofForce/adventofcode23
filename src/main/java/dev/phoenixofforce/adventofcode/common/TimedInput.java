@@ -11,24 +11,24 @@ import java.util.concurrent.*;
 @Slf4j
 public class TimedInput {
 
-    private static final ExecutorService l = Executors.newFixedThreadPool(1);
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(1);
 
     //https://stackoverflow.com/questions/61807890/user-input-with-a-timeout-in-java
     public static String getChoiceWithTimeout(int timeOutInSeconds) {
         Callable<String> callable = () -> new BufferedReader(new InputStreamReader(System.in)).readLine();
 
         LocalDateTime start = LocalDateTime.now();
-        Future<String> g = l.submit(callable);
+        Future<String> futureString = EXECUTOR.submit(callable);
         while (ChronoUnit.SECONDS.between(start, LocalDateTime.now()) < timeOutInSeconds) {
-            if (g.isDone()) {
+            if (futureString.isDone()) {
                 try {
-                    return g.get();
+                    return futureString.get();
                 } catch (InterruptedException | ExecutionException | IllegalArgumentException e) {
-                    g = l.submit(callable);
+                    futureString = EXECUTOR.submit(callable);
                 }
             }
         }
-        g.cancel(true);
+        futureString.cancel(true);
         return null;
     }
 

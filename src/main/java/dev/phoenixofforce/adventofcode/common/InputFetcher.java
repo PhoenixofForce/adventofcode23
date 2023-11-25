@@ -39,7 +39,10 @@ public class InputFetcher {
                     .onErrorResume(e -> null)
                     .block();
 
-            if(response != null && response.getStatusCode().is2xxSuccessful()) return response.getBody();
+            if(response != null && response.getStatusCode().is2xxSuccessful()) {
+                log.info("Found input file: \r\n{}", response.getBody());
+                return response.getBody();
+            }
         } catch(Exception ignored) { }
         log.error("Failed to fetch input");
 
