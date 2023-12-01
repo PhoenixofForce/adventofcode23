@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Getter
 public class PuzzleInput {
@@ -21,27 +22,46 @@ public class PuzzleInput {
             BufferedReader reader = new BufferedReader(new FileReader(FileUtils.getFile(day, year).get()));
 
             String line = reader.readLine();
-            String currentParagraph = "";
+            List<String> linesInput = new ArrayList<>();
 
             while(line != null) {
-                if(line.isEmpty()) {
-                    paragraphs.add(currentParagraph.trim());
-                    currentParagraph = "";
-                }
-
-                file += line;
-                lines.add(line);
-                if(!line.isEmpty()) currentParagraph += line + " ";
-
+                linesInput.add(line);
                 line = reader.readLine();
             }
 
-            if(!currentParagraph.isEmpty()) paragraphs.add(currentParagraph);
-
+            setup(linesInput);
             reader.close();
         } catch (FileNotFoundException ignored) { } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public PuzzleInput(List<String> lines) {
+        setup(lines);
+    }
+
+    private void setup(List<String> linesInput) {
+        String currentParagraph = "";
+
+        for(String line: linesInput) {
+            if(line.isEmpty()) {
+                paragraphs.add(currentParagraph.trim());
+                currentParagraph = "";
+            }
+
+            file += line;
+            lines.add(line);
+            if(!line.isEmpty()) currentParagraph += line + " ";
+        }
+
+        if(!currentParagraph.isEmpty()) paragraphs.add(currentParagraph);
+    }
+
+    public PuzzleInput mapLines(Function<String, String> mapper) {
+        return new PuzzleInput(lines.stream()
+            .map(mapper)
+            .toList()
+        );
     }
 
 }

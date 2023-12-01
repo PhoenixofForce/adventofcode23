@@ -44,7 +44,7 @@ public class AdventofcodeApplication {
 		if(today.getMonthValue() == 12) {
 			solveSingleDay(today.getDayOfMonth(), today.getYear());
 		} else {
-			solveSingleDay(2, 2019);
+			solveSingleDay(3, 2019);
 		}
 
 		((ConfigurableApplicationContext) context).close();
