@@ -138,11 +138,17 @@ public class AdventofcodeApplication {
 
 		long start = System.nanoTime();
 		String part1Solution = today.solvePart1(input).toString();
-		double part1Duration = (System.nanoTime() - start) / 1000.0;
+		double part1Duration = (System.nanoTime() - start) * 0.000001;
+
+		System.out.println();
+		System.out.println("Part 1 (" + part1Duration + "ms)");
+		System.out.println("|" + part1Solution + "|");
+		System.out.println();
+		Clipboard.save(part1Solution);
 
 		start = System.nanoTime();
 		String part2Solution = today.solvePart2(input).toString();
-		double part2Duration = (System.nanoTime() - start) / 1000.0;
+		double part2Duration = (System.nanoTime() - start) * 0.000001;
 
 		return new DaysSolution(part1Solution, part1Duration, part2Solution, part2Duration);
 	}
