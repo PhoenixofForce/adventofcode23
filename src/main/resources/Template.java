@@ -4,6 +4,7 @@ import dev.phoenixofforce.adventofcode.common.Puzzle;
 import dev.phoenixofforce.adventofcode.common.PuzzleInput;
 import org.springframework.stereotype.Component;
 
+import java.util.*;
 @Component
 public class Day{{day}} implements Puzzle {
 
