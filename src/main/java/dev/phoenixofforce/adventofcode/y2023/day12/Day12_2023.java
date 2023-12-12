@@ -16,25 +16,25 @@ import java.util.stream.IntStream;
 @Component
 public class Day12_2023 implements Puzzle {
 
-    private int solved = 1;
 
     @Data @EqualsAndHashCode @AllArgsConstructor
     private static class Result {
-        boolean matches;
-        private String shortVersion;
+        private String currentLine;
+        private List<Integer> validation;
     }
+
+    private static Map<Result, Long> cache = new HashMap<>();
 
     @Override
     public Object solvePart1(PuzzleInput input) {
         return input.getLines().stream()
-            //.parallel()
-            .mapToLong(this::getConfigurations)
+            .mapToLong(this::startCount)
             .sum();
     }
 
     @Override
     public Object solvePart2(PuzzleInput input) {
-        return "";//solvePart1(input.mapLines(this::unfold));
+        return solvePart1(input.mapLines(this::unfold));
     }
 
     private String unfold(String line) {
@@ -48,79 +48,43 @@ public class Day12_2023 implements Puzzle {
         return spring + " " + ints;
     }
 
-    private long getConfigurations(String line) {
+    private long startCount(String line) {
+        cache = new HashMap<>();
+
+        String input = shorten(line.split(" ")[0]);
         List<Integer> validation = Arrays.stream(line.split(" ")[1].split(","))
             .mapToInt(Integer::parseInt)
-            .boxed()
-            .toList();
+            .boxed().toList();
 
-        int total = validation.stream().mapToInt(e -> e).sum();
-        String input = line.split(" ")[0];
-        if(input.length() == total + validation.size() - 1) {
-            System.out.println(solved++ + " " + input + " " + 1);
-            return 1;
-        }
-
-        AtomicLong out = new AtomicLong();
-        getConfigurations(input, validation, out);
-        System.out.println(solved++ + " " + line + " " + out.get());
-        return out.get();
+        return getCount(input, validation);
     }
 
-    private void getConfigurations(String line, List<Integer> validation, AtomicLong count) {
-        if(!line.contains("?")) {
-            Result finalMatch = matches(line, validation);
-            if(finalMatch.matches) {
-                count.incrementAndGet();
-            }
-            return;
+    private long getCount(String line, List<Integer> validation) {
+        if(cache.containsKey(new Result(line, validation))) {
+            return cache.get(new Result(line, validation));
         }
 
-        Result result = matches(line, validation);
-        if(!result.matches) {
-            return;
+        if(line.isEmpty()) return validation.isEmpty()? 1: 0;
+        if(line.charAt(0) == '.') return getCount(line.substring(1), validation);
+        if(line.charAt(0) == '?') return getCount('.' + line.substring(1), validation) + getCount('#' + line.substring(1), validation);
+        if(validation.isEmpty()) return 0;
+
+        int groupSize = validation.get(0);
+        if(groupSize > line.length() || !line.substring(0, groupSize).chars().allMatch(c -> c == '#' || c == '?')) {
+            return 0;
         }
 
-        getConfigurations(line.replaceFirst("\\?", "."), validation, count);
-        getConfigurations(line.replaceFirst("\\?", "#"), validation, count);
-    }
-
-    private Result matches(String line, List<Integer> validation) {
-        if(line.replace(".", "").length() < validation.stream().mapToInt(e -> e).sum()) return new Result(false, line);
-
-        int validationIndex = 0;
-        int currentDefectCount = 0;
-        char lastChar = ' ';
-
-        for(int i = 0; i < line.toCharArray().length; i++) {
-            char c = line.charAt(i);
-
-            if(c == '?') {
-                if(lastChar == '.') return new Result(true, shorten(line));
-                return new Result(validationIndex >= validation.size() || currentDefectCount <= validation.get(validationIndex), shorten(line));
-            }
-            if(c == '#') currentDefectCount++;
-            if(c == '.' && lastChar == '#') {
-                if(validationIndex >= validation.size() ||
-                    currentDefectCount != validation.get(validationIndex)) return new Result(false, line);
-                currentDefectCount = 0;
-                validationIndex++;
-            }
-
-            lastChar = c;
+        long out = 0;
+        if(groupSize == line.length()) {
+            if(validation.size() == 1) out = 1;
+        } else if(line.charAt(groupSize) == '.') {
+            out = getCount(line.substring(groupSize + 1), validation.subList(1, validation.size()));
+        }else if(line.charAt(groupSize) == '?') {
+            out = getCount(line.substring(groupSize + 1), validation.subList(1, validation.size()));
         }
 
-        if(lastChar == '#') {
-            if(validationIndex >= validation.size() ||
-                currentDefectCount != validation.get(validationIndex)) return new Result(false, line);
-            validationIndex++;
-        }
-
-        if(validationIndex != validation.size()) {
-            return new Result(false, line);
-        }
-
-        return new Result(true, shorten(line));
+        cache.put(new Result(line, validation), out);
+        return out;
     }
 
     private String shorten(String line) {
