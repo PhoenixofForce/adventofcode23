@@ -9,6 +9,8 @@ import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.IntStream;
+
 @Component
 public class Day16_2023 implements Puzzle {
 
@@ -31,23 +33,23 @@ public class Day16_2023 implements Puzzle {
 
     @Override
     public Object solvePart2(PuzzleInput input) {
-        long out = 0;
+        long leftRightMax = IntStream.range(0, input.getLines().size())
+            .parallel()
+            .mapToLong(y -> Math.max(
+                solve(input, new Pos(0, y), DirectionUtils.Direction4.EAST),
+                solve(input, new Pos(input.getLines().get(y).length() - 1, y), DirectionUtils.Direction4.WEST)
+            ))
+            .max().orElse(0);
 
-        for(int y = 0; y < input.getLines().size(); y++) {
-            long fromLeft = solve(input, new Pos(0, y), DirectionUtils.Direction4.EAST);
-            if(fromLeft > out) out = fromLeft;
-            long fromRight = solve(input, new Pos(input.getLines().get(y).length() - 1, y), DirectionUtils.Direction4.WEST);
-            if(fromRight > out) out = fromRight;
-        }
+        long topBottomMax = IntStream.range(0, input.getLines().get(0).length())
+            .parallel()
+            .mapToLong(x -> Math.max(
+                solve(input, new Pos(x, 0), DirectionUtils.Direction4.SOUTH),
+                solve(input, new Pos(x, input.getLines().size() - 1), DirectionUtils.Direction4.NORTH)
+            ))
+            .max().orElse(0);
 
-        for(int x = 0; x < input.getLines().get(0).length(); x++) {
-            long fromTop = solve(input, new Pos(x, 0), DirectionUtils.Direction4.SOUTH);
-            if(fromTop > out) out = fromTop;
-            long fromBottom = solve(input, new Pos(x, input.getLines().size() - 1), DirectionUtils.Direction4.NORTH);
-            if(fromBottom > out) out = fromBottom;
-        }
-
-        return out;
+        return Math.max(leftRightMax, topBottomMax);
     }
 
     private long solve(PuzzleInput input, Pos startPos, DirectionUtils.Direction4 startDir) {
