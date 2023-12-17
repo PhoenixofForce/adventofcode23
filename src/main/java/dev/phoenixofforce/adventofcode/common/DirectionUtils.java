@@ -36,6 +36,22 @@ public class DirectionUtils {
 			Direction4[] vals = values();
 			return vals[(this.ordinal() + 1) % vals.length];
 		}
+
+		public List<Direction4> adjacent() {
+			return List.of(clockwise(), counterclockwise());
+		}
+
+		public Direction4 opposite() {
+			return next();
+		}
+
+		public Direction4 clockwise() {
+			return next();
+		}
+
+		public Direction4 counterclockwise() {
+			return next().next().next();
+		}
 	}
 	
 	public static Direction4 getDirection4(char in) {
