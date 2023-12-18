@@ -1,4 +1,4 @@
-package dev.phoenixofforce.adventofcode.common;
+package dev.phoenixofforce.adventofcode.solver;
 
 import java.util.Arrays;
 import java.util.List;

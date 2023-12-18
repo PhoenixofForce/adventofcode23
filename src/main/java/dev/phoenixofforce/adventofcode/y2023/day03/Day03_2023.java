@@ -1,7 +1,8 @@
 package dev.phoenixofforce.adventofcode.y2023.day03;
 
-import dev.phoenixofforce.adventofcode.common.Puzzle;
-import dev.phoenixofforce.adventofcode.common.PuzzleInput;
+import dev.phoenixofforce.adventofcode.meta.Puzzle;
+import dev.phoenixofforce.adventofcode.meta.PuzzleInput;
+import dev.phoenixofforce.adventofcode.solver.Position;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.stereotype.Component;
@@ -13,13 +14,6 @@ import java.util.Map;
 
 @Component
 public class Day03_2023 implements Puzzle {
-
-    @Data
-    @AllArgsConstructor
-    private static class Position {
-        private int x;
-        private int y;
-    }
 
     private final Map<Position, List<Integer>> gears = new HashMap<>();
 

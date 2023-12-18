@@ -1,4 +1,4 @@
-package dev.phoenixofforce.adventofcode.common;
+package dev.phoenixofforce.adventofcode.meta;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,6 +33,19 @@ public class CodeGenerator {
                                 .replace("{{day}}", dayStr + "_" + year) + "\r\n"
                 );
                 line = reader.readLine();
+            }
+
+            //TODO: git add writeTo.path
+            boolean isWindows = System.getProperty("os.name")
+                .toLowerCase().startsWith("windows");
+            String gitAdd = "git add " + writeTo.getPath();
+
+            if (isWindows) {
+                Runtime.getRuntime()
+                    .exec("cmd.exe /c " + gitAdd);
+            } else {
+                Runtime.getRuntime()
+                    .exec("/bin/sh -c  " + gitAdd);
             }
 
             reader.close();

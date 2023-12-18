@@ -1,7 +1,7 @@
 package dev.phoenixofforce.adventofcode.y2021.day23;
 
-import dev.phoenixofforce.adventofcode.common.ArrayUtils;
-import dev.phoenixofforce.adventofcode.common.DirectionUtils;
+import dev.phoenixofforce.adventofcode.solver.ArrayUtils;
+import dev.phoenixofforce.adventofcode.solver.Direction;
 import lombok.Getter;
 
 import java.util.*;
@@ -128,7 +128,7 @@ public class State {
 	private List<Position> getNeighbors(Position position) {
 		List<Position> out = new ArrayList<>(4);
 
-		List<Position> positions = DirectionUtils.getNeighbors4(Position::new, position.x, position.y);
+		List<Position> positions = Direction.getNeighbors4(Position::new, position.x, position.y);
 		for(Position position1 : positions) {
 			if(map[position1.y][position1.x] == '.') out.add(position1);
 		}

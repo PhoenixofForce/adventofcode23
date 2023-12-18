@@ -1,4 +1,4 @@
-package dev.phoenixofforce.adventofcode.common;
+package dev.phoenixofforce.adventofcode.meta;
 
 public interface Puzzle {
 

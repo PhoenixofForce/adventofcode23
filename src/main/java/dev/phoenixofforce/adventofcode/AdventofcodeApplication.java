@@ -1,6 +1,6 @@
 package dev.phoenixofforce.adventofcode;
 
-import dev.phoenixofforce.adventofcode.common.*;
+import dev.phoenixofforce.adventofcode.meta.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,18 +60,12 @@ public class AdventofcodeApplication {
 		String lastSolution;
 		int part = 1;
 
-		System.out.println();
-		System.out.println("Part 1 (" + solution.part1Duration() + "ms)");
-		System.out.println("|" + solution.part1Solution() + "|");
-		System.out.println();
+		printSolution(solution.part1Solution, solution.part1Duration);
 		Clipboard.save(solution.part1Solution());
 		lastSolution = solution.part1Solution;
 
 		if(!(solution.part2Solution() == null || solution.part2Solution().isBlank())) {
-			System.out.println("Part 2 (" + solution.part2Duration() + "ms)");
-			System.out.println("|" + solution.part2Solution() + "|");
-			System.out.println();
-			Clipboard.save(solution.part2Solution());
+			printSolution(solution.part2Solution, solution.part2Duration);
 			lastSolution = solution.part2Solution;
 			part = 2;
 		}
@@ -91,14 +86,20 @@ public class AdventofcodeApplication {
 	}
 
 	private void solveYear(int year) {
+		List<DaysSolution> solutions = new ArrayList<>();
 		for(int day = 1; day <= 25; day++) {
 			PuzzleInput input = grabInput(day, year, false);
 			DaysSolution solution = solveRiddle(day, year, input, false);
 
+			solutions.add(solution);
+		}
+
+		for(int day = 0; day < 25; day++) {
+			DaysSolution solution = solutions.get(day);
 			if(solution != null) {
 				System.out.println("Day " + day);
-				System.out.println("\tPart 1(" + solution.part1Duration + "ms): |" + solution.part1Solution + "|");
-				System.out.println("\tPart 2(" + solution.part2Duration + "ms): |" + solution.part2Solution + "|");
+				System.out.println("\tPart 1(" + parseTime(solution.part1Duration) + "): |" + solution.part1Solution + "|");
+				System.out.println("\tPart 2(" + parseTime(solution.part2Duration) + "): |" + solution.part2Solution + "|");
 			}
 		}
 	}
@@ -139,18 +140,40 @@ public class AdventofcodeApplication {
 		long start = System.nanoTime();
 		String part1Solution = today.solvePart1(input).toString();
 		double part1Duration = (System.nanoTime() - start) * 0.000001;
-
-		System.out.println();
-		System.out.println("Part 1 (" + part1Duration + "ms)");
-		System.out.println("|" + part1Solution + "|");
-		System.out.println();
-		Clipboard.save(part1Solution);
+		printSolution(part1Solution, part1Duration);
 
 		start = System.nanoTime();
 		String part2Solution = today.solvePart2(input).toString();
 		double part2Duration = (System.nanoTime() - start) * 0.000001;
 
 		return new DaysSolution(part1Solution, part1Duration, part2Solution, part2Duration);
+	}
+
+	private void printSolution(String solution, double durationInMillis) {
+		System.out.println();
+		System.out.println("Part 1 (" + parseTime(durationInMillis) + ")");
+		System.out.println("|" + solution + "|");
+		System.out.println();
+		Clipboard.save(solution);
+	}
+
+	private String parseTime(double timeInMillis) {
+		double millis = timeInMillis;
+		int seconds = (int) Math.floor(timeInMillis / 1000.0);
+		int minutes = (int) Math.floor(seconds / 60.0);
+		int hours = (int) Math.floor(minutes / 60.0);
+
+		millis -= seconds * 1000;
+		seconds -= minutes * 60;
+		minutes -= hours * 60;
+
+		String out = "";
+		if(hours > 0) out += hours + "h:";
+		if(hours > 0 || minutes > 0) out += minutes + "min:";
+		if(hours > 0 || minutes > 0 || seconds > 0) out += seconds + "s:";
+		out += millis + "ms";
+
+		return out;
 	}
 
 	private record DaysSolution(String part1Solution, double part1Duration,

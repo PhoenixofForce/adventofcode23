@@ -1,8 +1,8 @@
 package dev.phoenixofforce.adventofcode.y2023.day17;
 
-import dev.phoenixofforce.adventofcode.common.DirectionUtils;
-import dev.phoenixofforce.adventofcode.common.Puzzle;
-import dev.phoenixofforce.adventofcode.common.PuzzleInput;
+import dev.phoenixofforce.adventofcode.solver.Direction;
+import dev.phoenixofforce.adventofcode.meta.Puzzle;
+import dev.phoenixofforce.adventofcode.meta.PuzzleInput;
 import dev.phoenixofforce.adventofcode.solver.Dijkstra;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,28 +43,28 @@ public class Day17_2023 implements Puzzle {
     private List<State> getPaths(State in, int maxX, int maxY) {
         if(in.direction == -1) {
             return List.of(
-                new State(1, 0, 1, DirectionUtils.Direction4.EAST.ordinal()),
-                new State(0, 1, 1, DirectionUtils.Direction4.SOUTH.ordinal())
+                new State(1, 0, 1, Direction.EAST.ordinal()),
+                new State(0, 1, 1, Direction.SOUTH.ordinal())
             );
         }
 
         List<State> out = new ArrayList<>();
-        DirectionUtils.Direction4 currentDirection = DirectionUtils.Direction4.values()[in.getDirection()];
+        Direction currentDirection = Direction.values()[in.getDirection()];
 
         if(in.movesInSameDirection < (part2? 10: 3)) {
             out.add(new State(
-                in.x + currentDirection.toArray()[0],
-                in.y + currentDirection.toArray()[1],
+                in.x + currentDirection.getDx(),
+                in.y + currentDirection.getDy(),
                 in.movesInSameDirection + 1,
                 in.direction
             ));
         }
 
         if(!part2 || in.movesInSameDirection >= 4) {
-            for(DirectionUtils.Direction4 adjacentDirection: currentDirection.adjacent()) {
+            for(Direction adjacentDirection: currentDirection.adjacent()) {
                 out.add(new State(
-                    in.x + adjacentDirection.toArray()[0],
-                    in.y + adjacentDirection.toArray()[1],
+                    in.x + adjacentDirection.getDx(),
+                    in.y + adjacentDirection.getDy(),
                     1,
                     adjacentDirection.ordinal()
                 ));

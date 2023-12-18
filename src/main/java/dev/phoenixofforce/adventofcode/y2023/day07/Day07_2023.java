@@ -1,13 +1,12 @@
 package dev.phoenixofforce.adventofcode.y2023.day07;
 
-import dev.phoenixofforce.adventofcode.common.Puzzle;
-import dev.phoenixofforce.adventofcode.common.PuzzleInput;
+import dev.phoenixofforce.adventofcode.meta.Puzzle;
+import dev.phoenixofforce.adventofcode.meta.PuzzleInput;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class Day07_2023 implements Puzzle {

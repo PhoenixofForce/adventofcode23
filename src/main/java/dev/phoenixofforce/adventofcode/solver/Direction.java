@@ -1,69 +1,67 @@
-package dev.phoenixofforce.adventofcode.common;
+package dev.phoenixofforce.adventofcode.solver;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DirectionUtils {
+public enum Direction {
+
+	EAST(new int[]{1, 0}), SOUTH(new int[]{0, 1}), WEST(new int[]{-1, 0}), NORTH(new int[]{0, -1});
+
+	private final int[] dir;
+	Direction(int[] dir) {
+		this.dir = dir;
+	}
+
+	public int getDx() {
+		return dir[0];
+	}
+
+	public int getDy() {
+		return dir[1];
+	}
+
+	public Direction prev() {
+		Direction[] vals = values();
+		int pos = this.ordinal() - 1;
+		if(pos > 0) pos += vals.length;
+		return vals[pos];
+	}
+
+	public Direction next() {
+		Direction[] vals = values();
+		return vals[(this.ordinal() + 1) % vals.length];
+	}
+
+	public List<Direction> adjacent() {
+		return List.of(clockwise(), counterclockwise());
+	}
+
+	public Direction opposite() {
+		return next();
+	}
+
+	public Direction clockwise() {
+		return next();
+	}
+
+	public Direction counterclockwise() {
+			return next().next().next();
+		}
 
 	public interface CoordinateParser<T> {
 		T parse(int x, int y);
 	}
-
-	public enum Direction4 {
-		EAST(new int[]{1, 0}), SOUTH(new int[]{0, 1}), WEST(new int[]{-1, 0}), NORTH(new int[]{0, -1});
-
-		private final int[] dir;
-		Direction4(int[] dir) {
-			this.dir = dir;
-		}
-
-		public int[] scaleArray(int length) {
-			return new int[] { dir[0] * length, dir[1] * length };
-		} 
-		
-		public int[] toArray() {
-			return dir;
-		}
-
-		public Direction4 prev() {
-			Direction4[] vals = values();
-			int pos = this.ordinal() - 1;
-			if(pos > 0) pos += vals.length;
-			return vals[pos];
-		}
-
-		public Direction4 next() {
-			Direction4[] vals = values();
-			return vals[(this.ordinal() + 1) % vals.length];
-		}
-
-		public List<Direction4> adjacent() {
-			return List.of(clockwise(), counterclockwise());
-		}
-
-		public Direction4 opposite() {
-			return next();
-		}
-
-		public Direction4 clockwise() {
-			return next();
-		}
-
-		public Direction4 counterclockwise() {
-			return next().next().next();
-		}
-	}
 	
-	public static Direction4 getDirection4(char in) {
+	public static Direction getDirection4(char in) {
 		return getDirection4(in + "");
 	}
 
-	public static Direction4 getDirection4(String in) {
+	public static Direction getDirection4(String in) {
 		return switch (in) {
-			case ">", "R", "E" -> Direction4.EAST;
-			case "v", "D", "S" -> Direction4.SOUTH;
-			case "<", "L", "W" -> Direction4.WEST;
-			case "^", "U", "N" -> Direction4.NORTH;
+			case ">", "R", "E" -> Direction.EAST;
+			case "v", "D", "S" -> Direction.SOUTH;
+			case "<", "L", "W" -> Direction.WEST;
+			case "^", "U", "N" -> Direction.NORTH;
 			default -> null;
 		};
 	}
@@ -118,7 +116,7 @@ public class DirectionUtils {
 
 	public static <T> List<T> getNeighbors4(CoordinateParser<T> parser, int x, int y) {
 		List<T> out = new ArrayList<>();
-		for(Direction4 d: Direction4.values()) {
+		for(Direction d: Direction.values()) {
 			out.add(parser.parse(x + d.dir[0], y + d.dir[1]));
 		}
 		return out;
@@ -133,7 +131,7 @@ public class DirectionUtils {
 		int yWidth = Math.abs(maxY - minY);
 
 		List<T> out = new ArrayList<>();
-		for(Direction4 d: Direction4.values()) {
+		for(Direction d: Direction.values()) {
 			int nx  = x + d.dir[0];
 			int ny = y + d.dir[1];
 

@@ -1,4 +1,4 @@
-package dev.phoenixofforce.adventofcode.common;
+package dev.phoenixofforce.adventofcode.meta;
 
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;

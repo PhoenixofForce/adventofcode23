@@ -1,8 +1,8 @@
 package dev.phoenixofforce.adventofcode.y2023.day14;
 
-import dev.phoenixofforce.adventofcode.common.ArrayUtils;
-import dev.phoenixofforce.adventofcode.common.Puzzle;
-import dev.phoenixofforce.adventofcode.common.PuzzleInput;
+import dev.phoenixofforce.adventofcode.solver.ArrayUtils;
+import dev.phoenixofforce.adventofcode.meta.Puzzle;
+import dev.phoenixofforce.adventofcode.meta.PuzzleInput;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

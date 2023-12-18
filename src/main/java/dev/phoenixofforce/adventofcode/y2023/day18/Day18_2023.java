@@ -1,8 +1,9 @@
 package dev.phoenixofforce.adventofcode.y2023.day18;
 
-import dev.phoenixofforce.adventofcode.common.DirectionUtils;
-import dev.phoenixofforce.adventofcode.common.Puzzle;
-import dev.phoenixofforce.adventofcode.common.PuzzleInput;
+import dev.phoenixofforce.adventofcode.solver.Direction;
+import dev.phoenixofforce.adventofcode.meta.Puzzle;
+import dev.phoenixofforce.adventofcode.meta.PuzzleInput;
+import dev.phoenixofforce.adventofcode.solver.Position;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,39 +11,34 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.*;
+
 @Component
 public class Day18_2023 implements Puzzle {
 
     @Data @AllArgsConstructor @EqualsAndHashCode
-    private static class Pos {
-        private long x;
-        private long y;
-    }
-
-    @Data @AllArgsConstructor @EqualsAndHashCode
     private static class Edge {
-        private Pos from;
-        private Pos to;
+        private Position from;
+        private Position to;
 
-        private boolean contains(Pos p) {
+        private boolean contains(Position p) {
             return getMinY() <= p.getY() && p.getY() <= getMaxY() &&
                     getMinX() <= p.getX() && p.getX() <= getMaxX();
         }
 
         private long getMinY() {
-            return Math.min(from.y, to.y);
+            return Math.min(from.getY(), to.getY());
         }
 
         private long getMaxY() {
-            return Math.max(from.y, to.y);
+            return Math.max(from.getY(), to.getY());
         }
 
         private long getMinX() {
-            return Math.min(from.x, to.x);
+            return Math.min(from.getX(), to.getX());
         }
 
         private long getMaxX() {
-            return Math.max(from.x, to.x);
+            return Math.max(from.getX(), to.getX());
         }
 
         private long getMinX(long y) {
@@ -70,8 +66,8 @@ public class Day18_2023 implements Puzzle {
         long minY = Math.abs(coloredTunnels.stream().mapToLong(Edge::getMinY).min().getAsLong()) + 1;
 
         for (Edge current : coloredTunnels) {
-            out += (current.from.y + current.to.y + minY * 2) *
-                ((current.from.x + minX) - (current.to.x + minX)) / 2.0;
+            out += (current.from.getY() + current.to.getY() + minY * 2) *
+                ((current.from.getX() + minX) - (current.to.getX() + minX)) / 2.0;
             out += (current.length()) / 2.0;
         }
 
@@ -100,15 +96,12 @@ public class Day18_2023 implements Puzzle {
     private List<Edge> dig(List<String> lines) {
         List<Edge> out = new ArrayList<>();
 
-        Pos current = new Pos(0, 0);
+        Position current = new Position(0, 0);
         for(String s: lines) {
-            DirectionUtils.Direction4 direction = DirectionUtils.getDirection4(s.split(" ")[0]);
+            Direction direction = Direction.getDirection4(s.split(" ")[0]);
             long length = Long.parseLong(s.split(" ")[1]);
 
-            Pos other = new Pos(
-                current.getX() + direction.toArray()[0] * (length),
-                current.getY() + direction.toArray()[1] * (length)
-            );
+            Position other = current.applyDirection(direction, length);
             out.add(new Edge(current, other));
             current = other;
         }
