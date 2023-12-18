@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.*;
 @Component
 public class Day18_2023 implements Puzzle {
@@ -61,41 +62,20 @@ public class Day18_2023 implements Puzzle {
 
     @Override
     public Object solvePart1(PuzzleInput input) {
-        Set<Edge> coloredTunnels = dig(input.getLines());
-        long minY = coloredTunnels.stream().mapToLong(Edge::getMinY).min().getAsLong();
-        long maxY = coloredTunnels.stream().mapToLong(Edge::getMaxY).max().getAsLong();
+        List<Edge> coloredTunnels = dig(input.getLines());
 
-        long out = 0;
-        for(long y = minY - 1; y <= maxY + 1; y++) {
-            boolean isInside = false;
-            long finalY = y;
-            long minX = coloredTunnels.stream().mapToLong(e -> e.getMinX(finalY)).min().getAsLong();
-            long maxX = coloredTunnels.stream().mapToLong(e -> e.getMaxX(finalY)).max().getAsLong();
+        double out = 0;
 
-            for(long x = minX - 1; x <= maxX + 1; x++) {
-                Pos current = new Pos(x, y);
+        long minX = Math.abs(coloredTunnels.stream().mapToLong(Edge::getMinX).min().getAsLong()) + 1;
+        long minY = Math.abs(coloredTunnels.stream().mapToLong(Edge::getMinY).min().getAsLong()) + 1;
 
-                boolean containsCurrent = coloredTunnels.stream().anyMatch( e-> e.contains(current));
-                boolean containsAbove = coloredTunnels.stream().anyMatch( e-> e.contains(new Pos(current.getX(), current.getY() - 1)));
-                boolean isPipe =  containsCurrent &&
-                    containsAbove &&
-                    coloredTunnels.stream().anyMatch( e-> e.contains(new Pos(current.getX(), current.getY() + 1)));
-
-                boolean isL = containsCurrent &&
-                    containsAbove &&
-                    coloredTunnels.stream().anyMatch( e-> e.contains(new Pos(current.getX() + 1, current.getY())));
-
-                boolean isJ = containsCurrent &&
-                    containsAbove &&
-                    coloredTunnels.stream().anyMatch( e-> e.contains(new Pos(current.getX() - 1, current.getY())));
-
-                if(isPipe || isL || isJ) isInside = !isInside;
-
-                if(isInside || containsCurrent) out++;
-            }
+        for (Edge current : coloredTunnels) {
+            out += (current.from.y + current.to.y + minY * 2) *
+                ((current.from.x + minX) - (current.to.x + minX)) / 2.0;
+            out += (current.length()) / 2.0;
         }
 
-        return out;
+        return BigDecimal.valueOf(out + 1);
     }
 
     @Override
@@ -117,8 +97,8 @@ public class Day18_2023 implements Puzzle {
         ));
     }
 
-    private Set<Edge> dig(List<String> lines) {
-        Set<Edge> out = new HashSet<>();
+    private List<Edge> dig(List<String> lines) {
+        List<Edge> out = new ArrayList<>();
 
         Pos current = new Pos(0, 0);
         for(String s: lines) {
