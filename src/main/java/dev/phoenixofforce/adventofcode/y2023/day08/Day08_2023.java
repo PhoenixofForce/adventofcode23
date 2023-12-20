@@ -2,6 +2,7 @@ package dev.phoenixofforce.adventofcode.y2023.day08;
 
 import dev.phoenixofforce.adventofcode.meta.Puzzle;
 import dev.phoenixofforce.adventofcode.meta.PuzzleInput;
+import dev.phoenixofforce.adventofcode.solver.Maths;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -58,20 +59,7 @@ public class Day08_2023 implements Puzzle {
             }
         }
 
-        long out = 1;
-        for(long l: allSteps) {
-            long gcd = gcd(out, l);
-            out = (out * l) / gcd;
-        }
-
-        return out;
-    }
-
-    long gcd(long n1, long n2) {
-        if (n2 == 0) {
-            return n1;
-        }
-        return gcd(n2, n1 % n2);
+        return Maths.lcm(allSteps);
     }
 
 }
