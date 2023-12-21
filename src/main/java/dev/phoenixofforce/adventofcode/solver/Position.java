@@ -34,4 +34,9 @@ public class Position implements Comparable<Position> {
         if(this.x == o.x) return Long.compare(y, o.y);
         return Long.compare(x, o.x);
     }
+
+    @Override
+    public String toString() {
+        return "(" + x + "  | " + y + ")";
+    }
 }

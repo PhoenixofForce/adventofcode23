@@ -1,5 +1,6 @@
 package dev.phoenixofforce.adventofcode.meta;
 
+import dev.phoenixofforce.adventofcode.solver.Position;
 import lombok.Getter;
 
 import java.io.BufferedReader;
@@ -62,6 +63,37 @@ public class PuzzleInput {
             .map(mapper)
             .toList()
         );
+    }
+
+    public char getChar(long x, long y) {
+        return lines.get((int) y).charAt((int) x);
+    }
+    public char getCharTranscending(long x, long y) {
+        Position mapped = mapInbounds(new Position(x, y));
+        return getChar(mapped.getX(), mapped.getY());
+    }
+
+    public Position mapInbounds(Position in) {
+        long x = in.getX();
+        long y = in.getY();
+        while(x < 0) x += width();
+        while(y < 0) y += height();
+        x %= width();
+        y %= height();
+        return new Position(x, y);
+    }
+
+    public boolean inbounds(long x, long y) {
+        return 0 <= x && x < lines.get(0).length() &&
+            0 <= y && y < lines.size();
+    }
+
+    public long width() {
+        return lines.get(0).length();
+    }
+
+    public long height() {
+        return lines.size();
     }
 
 }
