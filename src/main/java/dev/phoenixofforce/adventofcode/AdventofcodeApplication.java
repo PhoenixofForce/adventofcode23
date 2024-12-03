@@ -60,14 +60,14 @@ public class AdventofcodeApplication {
 		String lastSolution;
 		int part = 1;
 
-		printSolution(solution.part1Solution, solution.part1Duration);
+		printSolution(part, solution.part1Solution, solution.part1Duration);
 		Clipboard.save(solution.part1Solution());
 		lastSolution = solution.part1Solution;
 
 		if(!(solution.part2Solution() == null || solution.part2Solution().isBlank())) {
-			printSolution(solution.part2Solution, solution.part2Duration);
-			lastSolution = solution.part2Solution;
 			part = 2;
+			printSolution(part, solution.part2Solution, solution.part2Duration);
+			lastSolution = solution.part2Solution;
 		}
 
 		if(lastSolution != null && !lastSolution.isBlank()) {
@@ -140,7 +140,7 @@ public class AdventofcodeApplication {
 		long start = System.nanoTime();
 		String part1Solution = today.solvePart1(input).toString();
 		double part1Duration = (System.nanoTime() - start) * 0.000001;
-		printSolution(part1Solution, part1Duration);
+		printSolution(1, part1Solution, part1Duration);
 
 		start = System.nanoTime();
 		String part2Solution = today.solvePart2(input).toString();
@@ -149,9 +149,9 @@ public class AdventofcodeApplication {
 		return new DaysSolution(part1Solution, part1Duration, part2Solution, part2Duration);
 	}
 
-	private void printSolution(String solution, double durationInMillis) {
+	private void printSolution(int part, String solution, double durationInMillis) {
 		System.out.println();
-		System.out.println("Part 1 (" + parseTime(durationInMillis) + ")");
+		System.out.println("Part " + part + " (" + parseTime(durationInMillis) + ")");
 		System.out.println("|" + solution + "|");
 		System.out.println();
 		Clipboard.save(solution);
