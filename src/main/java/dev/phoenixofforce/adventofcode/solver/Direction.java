@@ -37,7 +37,7 @@ public enum Direction {
 	}
 
 	public Direction opposite() {
-		return next();
+		return next().next();
 	}
 
 	public Direction clockwise() {

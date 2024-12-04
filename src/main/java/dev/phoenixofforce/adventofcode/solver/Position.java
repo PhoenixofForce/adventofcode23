@@ -33,6 +33,14 @@ public class Position implements Comparable<Position> {
         return offset(direction.getDx() * length, direction.getDy() * length);
     }
 
+    public Position applyDirection(int[] direction) {
+        return this.applyDirection(direction, 1);
+    }
+
+    public Position applyDirection(int[] direction, long length) {
+        return offset(direction[0] * length, direction[1] * length);
+    }
+
     @Override
     public Position clone() {
         return new Position(x, y, z);

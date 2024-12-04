@@ -68,6 +68,20 @@ public class PuzzleInput {
     public char getChar(long x, long y) {
         return lines.get((int) y).charAt((int) x);
     }
+
+    public char getChar(Position pos) {
+        return getChar(pos.getX(), pos.getY());
+    }
+
+    public char getCharOrElseDot(Position pos) {
+        return getCharOrElse(pos, '.');
+    }
+
+    public char getCharOrElse(Position pos, char defaultChar) {
+        if(!inbounds(pos)) return defaultChar;
+        return getChar(pos.getX(), pos.getY());
+    }
+
     public char getCharTranscending(long x, long y) {
         Position mapped = mapInbounds(new Position(x, y));
         return getChar(mapped.getX(), mapped.getY());
@@ -86,6 +100,10 @@ public class PuzzleInput {
     public boolean inbounds(long x, long y) {
         return 0 <= x && x < lines.get(0).length() &&
             0 <= y && y < lines.size();
+    }
+
+    public boolean inbounds(Position pos) {
+        return inbounds(pos.getX(), pos.getY());
     }
 
     public long width() {

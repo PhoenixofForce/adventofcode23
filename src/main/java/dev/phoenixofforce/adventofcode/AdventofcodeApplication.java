@@ -45,7 +45,7 @@ public class AdventofcodeApplication {
 		if(today.getMonthValue() == 12) {
 			solveSingleDay(today.getDayOfMonth(), today.getYear());
 		} else {
-			solveSingleDay(3, 2019);
+			solveSingleDay(25, 2023);
 		}
 
 		((ConfigurableApplicationContext) context).close();
@@ -70,18 +70,21 @@ public class AdventofcodeApplication {
 			lastSolution = solution.part2Solution;
 		}
 
-		if(lastSolution != null && !lastSolution.isBlank()) {
-			log.info("Do you want to upload the solution {} automatically? (Y/N)", lastSolution);
-			String uploadSolution = TimedInput.getChoiceWithTimeout(7);
-
-			if(uploadSolution != null && !uploadSolution.isEmpty() && uploadSolution.toLowerCase().charAt(0) == 'y') {
-				String response = fetcher.postAnswer(day, year, part, lastSolution);
-				System.out.println();
-				System.out.println(response.trim());
-				System.out.println();
-			}
+		if(!(lastSolution != null && !lastSolution.isBlank() && !"0".equals(lastSolution))) {
+			System.out.println();
+			return;
 		}
 
+		log.info("Do you want to upload the solution {} automatically? (Y/N)", lastSolution);
+		String uploadSolution = TimedInput.getChoiceWithTimeout(7);
+
+		if(uploadSolution == null || uploadSolution.isEmpty() || uploadSolution.toLowerCase().charAt(0) != 'y') {
+			return;
+		}
+
+		String response = fetcher.postAnswer(day, year, part, lastSolution);
+		System.out.println();
+		System.out.println(response.trim());
 		System.out.println();
 	}
 
@@ -96,11 +99,11 @@ public class AdventofcodeApplication {
 
 		for(int day = 0; day < 25; day++) {
 			DaysSolution solution = solutions.get(day);
-			if(solution != null) {
-				System.out.println("Day " + day);
-				System.out.println("\tPart 1(" + parseTime(solution.part1Duration) + "): |" + solution.part1Solution + "|");
-				System.out.println("\tPart 2(" + parseTime(solution.part2Duration) + "): |" + solution.part2Solution + "|");
-			}
+			if(solution == null) continue;
+
+			System.out.println("Day " + day);
+			System.out.println("\tPart 1(" + parseTime(solution.part1Duration) + "): |" + solution.part1Solution + "|");
+			System.out.println("\tPart 2(" + parseTime(solution.part2Duration) + "): |" + solution.part2Solution + "|");
 		}
 	}
 
@@ -127,11 +130,12 @@ public class AdventofcodeApplication {
 				.findFirst();
 
 		if(optionalPuzzle.isEmpty()) {
-			if(generate) {
-				log.error("No puzzle solver found in {}, generating template", packageSuffix);
-				generator.generateDay(day, year);
+			if(!generate) {
+				return null;
 			}
 
+			log.error("No puzzle solver found in {}, generating template", packageSuffix);
+			generator.generateDay(day, year);
 			return null;
 		}
 
@@ -168,9 +172,9 @@ public class AdventofcodeApplication {
 		minutes -= hours * 60;
 
 		String out = "";
-		if(hours > 0) out += hours + "h:";
-		if(hours > 0 || minutes > 0) out += minutes + "min:";
-		if(hours > 0 || minutes > 0 || seconds > 0) out += seconds + "s:";
+		if(hours > 0) out += hours + "h\t";
+		if(hours > 0 || minutes > 0) out += minutes + "min\t";
+		if(hours > 0 || minutes > 0 || seconds > 0) out += seconds + "s\t";
 		out += millis + "ms";
 
 		return out;
