@@ -172,10 +172,13 @@ public class AdventofcodeApplication {
 		minutes -= hours * 60;
 
 		String out = "";
-		if(hours > 0) out += hours + "h\t";
-		if(hours > 0 || minutes > 0) out += minutes + "min\t";
-		if(hours > 0 || minutes > 0 || seconds > 0) out += seconds + "s\t";
-		out += millis + "ms";
+		if(hours > 0) out += hours + "h   ";
+		if(hours > 0 || minutes > 0) out += minutes + "min   ";
+		if(hours > 0 || minutes > 0 || seconds > 0) out += seconds + "s   ";
+
+		String millisAsString = millis + "";
+		if(millisAsString.contains(".")) millisAsString = millisAsString.substring(0, Math.min(millisAsString.length(), millisAsString.indexOf(".") + 4));
+		out += millisAsString + "ms";
 
 		return out;
 	}

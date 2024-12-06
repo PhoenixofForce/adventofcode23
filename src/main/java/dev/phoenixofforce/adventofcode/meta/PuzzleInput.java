@@ -41,6 +41,12 @@ public class PuzzleInput {
         setup(lines);
     }
 
+    private PuzzleInput(String file, List<String> lines, List<String> paragraphs) {
+        this.file = file;
+        this.lines.addAll(lines);
+        this.paragraphs.addAll(paragraphs);
+    }
+
     private void setup(List<String> linesInput) {
         String currentParagraph = "";
 
@@ -71,6 +77,13 @@ public class PuzzleInput {
 
     public char getChar(Position pos) {
         return getChar(pos.getX(), pos.getY());
+    }
+
+    public void setChar(Position pos, char c) {
+        StringBuilder newLine = new StringBuilder(lines.get((int) pos.getY()));
+        newLine.setCharAt((int) pos.getX(), c);
+
+        this.lines.set((int) pos.getY(), newLine.toString());
     }
 
     public char getCharOrElseDot(Position pos) {
@@ -114,4 +127,18 @@ public class PuzzleInput {
         return lines.size();
     }
 
+    public char[][] toArray() {
+        char[][] map = new char[(int) height()][(int) width()];
+        for(int x = 0; x < width(); x++) {
+            for(int y = 0; y < height(); y++) {
+                map[y][x] = getChar(x, y);
+            }
+        }
+        return map;
+    }
+
+    @Override
+    public PuzzleInput clone() {
+        return new PuzzleInput(file, lines, paragraphs);
+    }
 }
