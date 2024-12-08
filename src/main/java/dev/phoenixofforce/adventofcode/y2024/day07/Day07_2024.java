@@ -47,6 +47,7 @@ public class Day07_2024 implements Puzzle {
 
     private boolean isPossible(long result, List<Long> numbers, boolean part2) {
         if(numbers.size() == 1) return result == numbers.getFirst();
+        if(numbers.getFirst() > result) return false;
         List<Long> copy = new ArrayList<>(numbers);
 
         long first = copy.removeFirst();
