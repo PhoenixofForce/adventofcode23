@@ -40,7 +40,7 @@ public class Day23_2021 implements Puzzle {
         System.out.println(ArrayUtils.toString(map));
 
         State start = new State(map, 0);
-        return Dijkstra.findPathWithMultipleEndsAndHeuristic(start, State::isEnd, State::getStates, (a, b) -> a.getScore(), State::getHeuristic);
+        return Dijkstra.findPathWithMultipleEndsAndHeuristic(start, State::isEnd, State::getStates, (a, b) -> a.getScore(), State::getHeuristic).getDistance();
     }
 
 }

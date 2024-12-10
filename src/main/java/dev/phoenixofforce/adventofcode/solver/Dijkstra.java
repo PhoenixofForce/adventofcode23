@@ -30,26 +30,30 @@ public class Dijkstra {
 		private final State endElement;
 		private final long distance;
 		private final List<State> path;
+
+		public boolean isEmpty() {
+			return endElement == null || distance == Long.MAX_VALUE || path.isEmpty();
+		}
 	}
 
 	private static final int ITERATIONS_PER_PRINT = 1000;
 
-	public static <State> long findPath(State start, State end, NeighborFinder<State> nf, Accumulator<State> sc) {
+	public static <State> End<State> findPath(State start, State end, NeighborFinder<State> nf, Accumulator<State> sc) {
 		return findPathWithMultipleEndsAndHeuristic(start, t -> t.equals(end), nf, sc, t -> 0);
 	}
 
-	public static <State> long findPathWithMultipleEnds(State start, EndFinder<State> ef, NeighborFinder<State> nf, Accumulator<State> sc) {
+	public static <State> End<State> findPathWithMultipleEnds(State start, EndFinder<State> ef, NeighborFinder<State> nf, Accumulator<State> sc) {
 		return findPathWithMultipleEndsAndHeuristic(start, ef, nf, sc, t -> 0);
 	}
 
-	public static <State> long findPathWithHeuristic(State start, State end, NeighborFinder<State> nf, Accumulator<State> sc, Heuristic<State> h) {
+	public static <State> End<State> findPathWithHeuristic(State start, State end, NeighborFinder<State> nf, Accumulator<State> sc, Heuristic<State> h) {
 		return findPathWithMultipleEndsAndHeuristic(start, t -> t.equals(end), nf, sc, h);
 	}
 
-	public static <State> long findPathWithMultipleEndsAndHeuristic(State start, EndFinder<State> endFinder,
+	public static <State> End<State> findPathWithMultipleEndsAndHeuristic(State start, EndFinder<State> endFinder,
 																NeighborFinder<State> neighborFinder, Accumulator<State> scoreCalculator, Heuristic<State> heuristic) {
 
-		return findPathWithMultipleEndsAndHeuristicAndMaybeLast(start, endFinder, neighborFinder, scoreCalculator, heuristic, true).distance;
+		return findPathWithMultipleEndsAndHeuristicAndMaybeLast(start, endFinder, neighborFinder, scoreCalculator, heuristic, true);
 	}
 
 	public static <State> End<State> findPathWithMultipleEndsAndHeuristicAndMaybeLast(State start, EndFinder<State> endFinder,
