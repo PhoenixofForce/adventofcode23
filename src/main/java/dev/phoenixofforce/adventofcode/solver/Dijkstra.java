@@ -1,7 +1,9 @@
 package dev.phoenixofforce.adventofcode.solver;
 
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -44,18 +46,14 @@ public class Dijkstra<State> {
 	private Accumulator<State> accumulator;
 	private Heuristic<State> heuristic;
 
-	private Dijkstra() {
+	private Dijkstra(State start) {
+		this.start = start;
 		this.accumulator = (e, score) -> score + 1;
 		this.heuristic = e -> 0;
 	}
 
-	public static <State> Dijkstra<State> findPath() {
-		return new Dijkstra<>();
-	}
-
-	public Dijkstra<State> from(State start) {
-		this.start = start;
-		return this;
+	public static <State> Dijkstra<State> from(State start) {
+		return new Dijkstra<>(start);
 	}
 
 	public Dijkstra<State> to(State end) {
@@ -89,30 +87,21 @@ public class Dijkstra<State> {
 	}
 
 	public End<State> getFirst() {
-		List<End<State>> ends = findPath(
-			this.start, this.endFinder, this.neighborFinder,
-			this.accumulator, this.heuristic, false, this.iterations_per_print
-		);
+		List<End<State>> ends = findPath(false);
 
 		if(!ends.isEmpty()) return ends.getLast();
 		return pathNotFound();
 	}
 
 	public End<State> getLast() {
-		List<End<State>> ends = findPath(
-			this.start, this.endFinder, this.neighborFinder,
-			this.accumulator, this.heuristic, true, this.iterations_per_print
-		);
+		List<End<State>> ends = findPath(true);
 
 		if(!ends.isEmpty()) return ends.getLast();
 		return pathNotFound();
 	}
 
 	public List<End<State>> getAll() {
-		return findPath(
-			this.start, this.endFinder, this.neighborFinder,
-			this.accumulator, this.heuristic, true, this.iterations_per_print
-		);
+		return findPath(true);
 	}
 
 
@@ -120,8 +109,11 @@ public class Dijkstra<State> {
 		return new End<>(null, Long.MAX_VALUE, List.of());
 	}
 
-	private static <State> List<End<State>> findPath(State start, EndFinder<State> endFinder, NeighborFinder<State> neighborFinder,
-											   Accumulator<State> scoreCalculator, Heuristic<State> heuristic, boolean returnAll, int iterations_per_print) {
+	private List<End<State>> findPath(boolean returnAll) {
+
+		if(start == null) throw new RuntimeException("Start must be set");
+		if(endFinder == null) throw new RuntimeException("End must be set");
+		if(neighborFinder == null) throw new RuntimeException("State Generator must be set");
 
 		Map<State, Long> distances = new HashMap<>();
 		Map<State, State> previousElements = new HashMap<>();
@@ -145,10 +137,11 @@ public class Dijkstra<State> {
 				if(!returnAll) {
 					return ends;
 				}
+				continue;
 			}
 
 			for(State newState: neighborFinder.getNeighbors(currentState)) {
-				long scoreOfNewState = scoreCalculator.accumulate(newState, currentScore);
+				long scoreOfNewState = accumulator.accumulate(newState, currentScore);
 
 				if(!closed.contains(newState) && scoreOfNewState < distances.getOrDefault(newState, Long.MAX_VALUE)) {
 					distances.put(newState, scoreOfNewState);
@@ -174,6 +167,6 @@ public class Dijkstra<State> {
 			t = pre.get(t);
 		}
 
-		return new End<State>(pos, distances.get(pos), path.reversed());
+		return new End<>(pos, distances.get(pos), path.reversed());
 	}
 }

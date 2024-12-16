@@ -33,23 +33,17 @@ public class Day25_2023 implements Puzzle {
         }
 
         //Get two opposing elements
-        String firstElement = Dijkstra.findPathWithMultipleEndsAndHeuristicAndMaybeLast(
-            allPoints.get(0),
-            (e) -> true,
-            connections::get,
-            (e, sum) -> sum + 1,
-            t -> 0,
-            false
-        ).getEndElement();
+        String firstElement = Dijkstra
+            .from(allPoints.getFirst())
+            .to((e) -> true)
+            .generateNextSteps(connections::get)
+            .getLast().getEndElement();
 
-        String secondElement = Dijkstra.findPathWithMultipleEndsAndHeuristicAndMaybeLast(
-            firstElement,
-            (e) -> true,
-            connections::get,
-            (e, sum) -> sum + 1,
-            t -> 0,
-            false
-        ).getEndElement();
+        String secondElement = Dijkstra
+            .from(firstElement)
+            .to((e) -> true)
+            .generateNextSteps(connections::get)
+            .getLast().getEndElement();
 
         //Get three paths and remove them, since there are three bridged, each bridge must be inside of one path
         Dijkstra.End<String> path = findPathWithoutPaths(firstElement, secondElement, connections, List.of());
@@ -111,14 +105,11 @@ public class Day25_2023 implements Puzzle {
             removed.forEach(e -> connectionsWithoutRemoved.get(e.get(1)).remove(e.get(0)));
         }
 
-        return Dijkstra.findPathWithMultipleEndsAndHeuristicAndMaybeLast(
-            firstElement,
-            secondElement::equals,
-            connectionsWithoutRemoved::get,
-            (e, sum) -> sum + 1,
-            t -> 0,
-            true
-        );
+        return Dijkstra
+            .from(firstElement)
+            .to(secondElement::equals)
+            .generateNextSteps(connectionsWithoutRemoved::get)
+            .getLast();
     }
 
     private List<List<String>> findGroups(Map<String, List<String>> connections, List<String> allPoints, List<List<String>> removed) {

@@ -52,8 +52,7 @@ public class Day16_2024 implements Puzzle {
 
         State startState = new State(start, Direction.EAST, 0, List.of());
         Position finalEnd = end;
-        Dijkstra.End<State> endState = Dijkstra.<State>findPath()
-            .from(startState)
+        Dijkstra.End<State> endState = Dijkstra.from(startState)
             .to(possibleEnd -> possibleEnd.getPosition().equals(finalEnd))
             .generateNextSteps(state -> getNextMoves(isWall, state, solutionPart1))
             .withAccumulator((state, score) -> state.getScore())

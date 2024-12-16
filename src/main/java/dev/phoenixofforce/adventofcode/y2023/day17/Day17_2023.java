@@ -27,7 +27,7 @@ public class Day17_2023 implements Puzzle {
     public Object solvePart1(PuzzleInput input) {
         State start = new State(0, 0, 0, -1);
 
-        return Dijkstra.<State>findPath()
+        return Dijkstra
             .from(start)
             .to(s -> s.y == input.getLines().size() - 1 && s.x == input.getLines().get(0).length() - 1)
             .generateNextSteps(s -> getPaths(s, input.getLines().get(0).length(), input.getLines().size()))

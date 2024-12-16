@@ -40,7 +40,7 @@ public class Day23_2021 implements Puzzle {
         System.out.println(ArrayUtils.toString(map));
 
         State start = new State(map, 0);
-        return Dijkstra.<State>findPath()
+        return Dijkstra
                 .from(start)
                 .to(State::isEnd)
                 .generateNextSteps(State::getStates)
