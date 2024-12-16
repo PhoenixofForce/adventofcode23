@@ -10,10 +10,8 @@ import org.springframework.stereotype.Component;
 import dev.phoenixofforce.adventofcode.meta.Puzzle;
 import dev.phoenixofforce.adventofcode.meta.PuzzleInput;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class Day16_2024 implements Puzzle {
@@ -27,9 +25,6 @@ public class Day16_2024 implements Puzzle {
 
         @EqualsAndHashCode.Exclude
         private long score;
-
-        @EqualsAndHashCode.Exclude
-        private List<Position> path;
     }
 
     @Override
@@ -50,8 +45,9 @@ public class Day16_2024 implements Puzzle {
             }
         }
 
-        State startState = new State(start, Direction.EAST, 0, List.of());
+        State startState = new State(start, Direction.EAST, 0);
         Position finalEnd = end;
+
         Dijkstra.End<State> endState = Dijkstra.from(startState)
             .to(possibleEnd -> possibleEnd.getPosition().equals(finalEnd))
             .generateNextSteps(state -> getNextMoves(isWall, state, solutionPart1))
@@ -80,60 +76,23 @@ public class Day16_2024 implements Puzzle {
             }
         }
 
-        State startState = new State(start, Direction.EAST, 0, List.of());
-        PriorityQueue<State> open = new PriorityQueue<>(Comparator.comparingLong(State::getScore));
-        Map<State, Long> smallestScoreForPosition = new HashMap<>();
-        open.add(startState);
+        State startState = new State(start, Direction.EAST, 0);
+        Position finalEnd = end;
 
-        List<State> ends = new ArrayList<>();
-        int i = 0;
-        while(!open.isEmpty()) {
-            State current = open.remove();
-
-            if(i % 5000 == 0) System.out.println(open.size() + " items left, currentScore: " + current.getScore());
-            i++;
-
-            if(current.getScore() > solutionPart1) continue;
-            if(current.getPosition().equals(end)) {
-                ends.add(current);
-                continue;
-            }
-
-            List<State> nextMoves = getNextMoves(isWall, current, solutionPart1);
-            for(State next: nextMoves) {
-                if(next.score <= smallestScoreForPosition.getOrDefault(next, Long.MAX_VALUE)) {
-                    open.add(next);
-                    smallestScoreForPosition.put(next, next.score);
-                }
-
-            }
-        }
-
-        Collection<Position> bestSpots = ends.stream()
-            .flatMap(e -> e.getPath().stream())
-            .collect(Collectors.toSet());
-
-        bestSpots.add(end);
-
-        for (int y = 0; y < input.height(); y++) {
-            for(int x = 0; x < input.width(); x++) {
-                char c = input.getChar(x, y);
-
-                Position p = new Position(x, y);
-                if(c == '#') System.out.print(c);
-                else System.out.print(bestSpots.stream().anyMatch(e -> e.equals(p)) ? 'O': '.');
-            }
-            System.out.println();
-        }
-
-        return bestSpots.size();
+        return Dijkstra.from(startState)
+                .to(e -> e.getPosition().equals(finalEnd))
+                .generateNextSteps(state -> getNextMoves(isWall, state, solutionPart1))
+                .withAccumulator((state, score) -> state.getScore())
+                .getAll()
+                .stream()
+                .flatMap(e -> e.getPath().stream())
+                .map(State::getPosition)
+                .distinct()
+                .count();
 
     }
 
     private List<State> getNextMoves(Map<Position, Boolean> isWall, State currentState, long part1Solution) {
-        List<Position> path = new ArrayList<>(currentState.path);
-        path.add(currentState.getPosition());
-
         if(part1Solution >= 0 && currentState.getScore() > part1Solution) {
             return List.of();
         }
@@ -142,10 +101,8 @@ public class Day16_2024 implements Puzzle {
 
         Position nextPosition = currentState.getPosition().applyDirection(currentState.getFacing());
         if(!isWall.get(nextPosition)) {
-            State nextState = new State(nextPosition, currentState.getFacing(), currentState.getScore() + 1, new ArrayList<>(path));
-            if(!currentState.getPath().contains(nextState.getPosition())) {
-                nextStates.add(nextState);
-            }
+            State nextState = new State(nextPosition, currentState.getFacing(), currentState.getScore() + 1);
+            nextStates.add(nextState);
         }
 
         Position nextClockwisePosition = currentState.getPosition().applyDirection(currentState.getFacing().clockwise());
@@ -155,16 +112,12 @@ public class Day16_2024 implements Puzzle {
         boolean isWallCounterclockwise = isWall.get(nextCounterclockwisePosition);
 
         if(!isWallClockwise || isWallCounterclockwise) {
-            State nextState = new State(currentState.getPosition(), currentState.getFacing().clockwise(), currentState.getScore() + 1000, new ArrayList<>(path));
-            if(!currentState.getPath().contains(nextState.getPosition())) {
-                nextStates.add(nextState);
-            }
+            State nextState = new State(currentState.getPosition(), currentState.getFacing().clockwise(), currentState.getScore() + 1000);
+            nextStates.add(nextState);
         }
         if(!isWallCounterclockwise) {
-            State nextState = new State(currentState.getPosition(), currentState.getFacing().counterclockwise(), currentState.getScore() + 1000, new ArrayList<>(path));
-            if(!currentState.getPath().contains(nextState.getPosition())) {
-                nextStates.add(nextState);
-            }
+            State nextState = new State(currentState.getPosition(), currentState.getFacing().counterclockwise(), currentState.getScore() + 1000);
+            nextStates.add(nextState);
         }
 
         return nextStates;

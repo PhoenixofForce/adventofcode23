@@ -1,9 +1,8 @@
 package dev.phoenixofforce.adventofcode.solver;
 
 
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
+import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -30,7 +29,11 @@ public class Dijkstra<State> {
 	@Data
 	public static class End<State> {
 		private final State endElement;
+
+		@EqualsAndHashCode.Exclude
 		private final long distance;
+
+		@EqualsAndHashCode.Exclude
 		private final List<State> path;
 
 		public boolean isEmpty() {
@@ -87,21 +90,15 @@ public class Dijkstra<State> {
 	}
 
 	public End<State> getFirst() {
-		List<End<State>> ends = findPath(false);
-
-		if(!ends.isEmpty()) return ends.getLast();
-		return pathNotFound();
+		return findPath(false);
 	}
 
 	public End<State> getLast() {
-		List<End<State>> ends = findPath(true);
-
-		if(!ends.isEmpty()) return ends.getLast();
-		return pathNotFound();
+		return findPath(true);
 	}
 
 	public List<End<State>> getAll() {
-		return findPath(true);
+		return bfs();
 	}
 
 
@@ -109,7 +106,7 @@ public class Dijkstra<State> {
 		return new End<>(null, Long.MAX_VALUE, List.of());
 	}
 
-	private List<End<State>> findPath(boolean returnAll) {
+	private End<State> findPath(boolean returnLast) {
 
 		if(start == null) throw new RuntimeException("Start must be set");
 		if(endFinder == null) throw new RuntimeException("End must be set");
@@ -124,18 +121,19 @@ public class Dijkstra<State> {
 		open.add(start);
 
 		int iterations = 0;
-		List<End<State>> ends = new ArrayList<>();
+		End<State> lastEnd = null;
 		while(!open.isEmpty()) {
 			State currentState = open.remove();
 			long currentScore = distances.get(currentState);
 
 			if(iterations_per_print > 0 && iterations % iterations_per_print == 0)
 				log.info("score: {}, open: {}, closed: {}", currentScore, open.size(), closed.size());
+			iterations++;
 
 			if(endFinder.isEnd(currentState)) {
-				ends.add(generateEndObject(currentState, previousElements, distances));
-				if(!returnAll) {
-					return ends;
+				lastEnd = generateEndObject(currentState, previousElements, distances);
+				if(!returnLast) {
+					return lastEnd;
 				}
 				continue;
 			}
@@ -143,17 +141,64 @@ public class Dijkstra<State> {
 			for(State newState: neighborFinder.getNeighbors(currentState)) {
 				long scoreOfNewState = accumulator.accumulate(newState, currentScore);
 
-				if(!closed.contains(newState) && scoreOfNewState < distances.getOrDefault(newState, Long.MAX_VALUE)) {
-					distances.put(newState, scoreOfNewState);
-					previousElements.put(newState, currentState);
-
-					open.remove(newState);
-					open.add(newState);
+				if(closed.contains(newState) || scoreOfNewState >= distances.getOrDefault(newState, Long.MAX_VALUE)) {
+					continue;
 				}
+
+				distances.put(newState, scoreOfNewState);
+				previousElements.put(newState, currentState);
+
+				open.remove(newState);
+				open.add(newState);
 			}
 
 			closed.add(currentState);
+		}
+
+		if(lastEnd != null) return lastEnd;
+
+		log.warn("No Path was found");
+		return pathNotFound();
+	}
+
+	private List<End<State>> bfs() {
+		End<State> startState = new End<>(start, 0, List.of(start));
+
+		Map<State, Long> smallestScoreForPosition = new HashMap<>();
+		PriorityQueue<End<State>> open = new PriorityQueue<>(Comparator.comparingLong(End::getDistance));
+		open.add(startState);
+
+		List<End<State>> ends = new ArrayList<>();
+
+		int iterations = 0;
+		while(!open.isEmpty()) {
+			End<State> current = open.remove();
+
+			if(iterations_per_print > 0 && iterations % iterations_per_print == 0)
+				log.info("score: {}, open: {}", current.getDistance(), open.size());
 			iterations++;
+
+			if(endFinder.isEnd(current.getEndElement())) {
+				ends.add(current);
+				continue;
+			}
+
+			Collection<State> nextMoves = neighborFinder.getNeighbors(current.getEndElement());
+			for(State next: nextMoves) {
+				long scoreOfNewState = accumulator.accumulate(next, current.getDistance());
+
+				if(current.getPath().contains(next)) continue;
+				if(scoreOfNewState > smallestScoreForPosition.getOrDefault(next, Long.MAX_VALUE)) {
+					continue;
+				}
+
+				List<State> path = new ArrayList<>(current.getPath());
+				path.add(next);
+
+				End<State> newState = new End<>(next, scoreOfNewState, path);
+				open.add(newState);
+				smallestScoreForPosition.put(next, newState.getDistance());
+			}
 		}
 
 		return ends;
