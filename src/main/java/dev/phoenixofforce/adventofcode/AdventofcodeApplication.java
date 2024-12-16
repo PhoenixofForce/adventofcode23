@@ -42,11 +42,16 @@ public class AdventofcodeApplication {
 	public void run() {
 		LocalDate today = LocalDate.now();
 
-		if(today.getMonthValue() == 12) {
-			solveSingleDay(today.getDayOfMonth(), today.getYear());
-		} else {
-			solveSingleDay(25, 2023);
+		int day = 0;
+		int year = 0;
+
+		if(today.getMonthValue() == 12 && (day <= 0 || day >= 26 || year < 2015)) {
+			day = today.getDayOfMonth();
+			year = today.getYear();
 		}
+
+		if(day <= 0 || day >= 26 || year < 2015) return;
+		solveSingleDay(day, year);
 
 		((ConfigurableApplicationContext) context).close();
 		System.exit(0);

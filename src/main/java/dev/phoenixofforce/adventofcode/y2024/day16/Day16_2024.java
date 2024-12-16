@@ -52,12 +52,12 @@ public class Day16_2024 implements Puzzle {
 
         State startState = new State(start, Direction.EAST, 0, List.of());
         Position finalEnd = end;
-        Dijkstra.End<State> endState = Dijkstra.findPathWithMultipleEnds(
-            startState,
-            possibleEnd -> possibleEnd.getPosition().equals(finalEnd),
-            state -> getNextMoves(isWall, state, solutionPart1),
-            (state, score) -> state.getScore()
-        );
+        Dijkstra.End<State> endState = Dijkstra.<State>findPath()
+            .from(startState)
+            .to(possibleEnd -> possibleEnd.getPosition().equals(finalEnd))
+            .generateNextSteps(state -> getNextMoves(isWall, state, solutionPart1))
+            .withAccumulator((state, score) -> state.getScore())
+            .getFirst();
 
         solutionPart1 = endState.getDistance();
         return solutionPart1;

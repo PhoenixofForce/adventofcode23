@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 
 @Slf4j
-public class Dijkstra {
+public class Dijkstra<State> {
 
 	public interface Accumulator<State> {
 		long accumulate(State state, long sum);
@@ -36,28 +36,92 @@ public class Dijkstra {
 		}
 	}
 
-	private static final int ITERATIONS_PER_PRINT = 1000;
+	private int iterations_per_print = -1;
 
-	public static <State> End<State> findPath(State start, State end, NeighborFinder<State> nf, Accumulator<State> sc) {
-		return findPathWithMultipleEndsAndHeuristic(start, t -> t.equals(end), nf, sc, t -> 0);
+	private State start;
+	private EndFinder<State> endFinder;
+	private NeighborFinder<State> neighborFinder;
+	private Accumulator<State> accumulator;
+	private Heuristic<State> heuristic;
+
+	private Dijkstra() {
+		this.accumulator = (e, score) -> score + 1;
+		this.heuristic = e -> 0;
 	}
 
-	public static <State> End<State> findPathWithMultipleEnds(State start, EndFinder<State> ef, NeighborFinder<State> nf, Accumulator<State> sc) {
-		return findPathWithMultipleEndsAndHeuristic(start, ef, nf, sc, t -> 0);
+	public static <State> Dijkstra<State> findPath() {
+		return new Dijkstra<>();
 	}
 
-	public static <State> End<State> findPathWithHeuristic(State start, State end, NeighborFinder<State> nf, Accumulator<State> sc, Heuristic<State> h) {
-		return findPathWithMultipleEndsAndHeuristic(start, t -> t.equals(end), nf, sc, h);
+	public Dijkstra<State> from(State start) {
+		this.start = start;
+		return this;
 	}
 
-	public static <State> End<State> findPathWithMultipleEndsAndHeuristic(State start, EndFinder<State> endFinder,
-																NeighborFinder<State> neighborFinder, Accumulator<State> scoreCalculator, Heuristic<State> heuristic) {
-
-		return findPathWithMultipleEndsAndHeuristicAndMaybeLast(start, endFinder, neighborFinder, scoreCalculator, heuristic, true);
+	public Dijkstra<State> to(State end) {
+		this.endFinder = e -> e.equals(end);
+		return this;
 	}
 
-	public static <State> End<State> findPathWithMultipleEndsAndHeuristicAndMaybeLast(State start, EndFinder<State> endFinder,
-																NeighborFinder<State> neighborFinder, Accumulator<State> scoreCalculator, Heuristic<State> heuristic, boolean returnFirstFoundEnd) {
+	public Dijkstra<State> to(EndFinder<State> endFinder) {
+		this.endFinder = endFinder;
+		return this;
+	}
+
+	public Dijkstra<State> generateNextSteps(NeighborFinder<State> neighborFinder) {
+		this.neighborFinder = neighborFinder;
+		return this;
+	}
+
+	public Dijkstra<State> withAccumulator(Accumulator<State> accumulator) {
+		this.accumulator = accumulator;
+		return this;
+	}
+
+	public Dijkstra<State> withHeuristic(Heuristic<State> heuristic) {
+		this.heuristic = heuristic;
+		return this;
+	}
+
+	public Dijkstra<State> withDebugPrintEveryIteration(int iterations_per_print) {
+		this.iterations_per_print = iterations_per_print;
+		return this;
+	}
+
+	public End<State> getFirst() {
+		List<End<State>> ends = findPath(
+			this.start, this.endFinder, this.neighborFinder,
+			this.accumulator, this.heuristic, false, this.iterations_per_print
+		);
+
+		if(!ends.isEmpty()) return ends.getLast();
+		return pathNotFound();
+	}
+
+	public End<State> getLast() {
+		List<End<State>> ends = findPath(
+			this.start, this.endFinder, this.neighborFinder,
+			this.accumulator, this.heuristic, true, this.iterations_per_print
+		);
+
+		if(!ends.isEmpty()) return ends.getLast();
+		return pathNotFound();
+	}
+
+	public List<End<State>> getAll() {
+		return findPath(
+			this.start, this.endFinder, this.neighborFinder,
+			this.accumulator, this.heuristic, true, this.iterations_per_print
+		);
+	}
+
+
+	private End<State> pathNotFound() {
+		return new End<>(null, Long.MAX_VALUE, List.of());
+	}
+
+	private static <State> List<End<State>> findPath(State start, EndFinder<State> endFinder, NeighborFinder<State> neighborFinder,
+											   Accumulator<State> scoreCalculator, Heuristic<State> heuristic, boolean returnAll, int iterations_per_print) {
 
 		Map<State, Long> distances = new HashMap<>();
 		Map<State, State> previousElements = new HashMap<>();
@@ -68,19 +132,18 @@ public class Dijkstra {
 		open.add(start);
 
 		int iterations = 0;
-		State lastFoundEnd = null;
+		List<End<State>> ends = new ArrayList<>();
 		while(!open.isEmpty()) {
 			State currentState = open.remove();
 			long currentScore = distances.get(currentState);
 
-			if(ITERATIONS_PER_PRINT > 0 && iterations % ITERATIONS_PER_PRINT == 0)
+			if(iterations_per_print > 0 && iterations % iterations_per_print == 0)
 				log.info("score: {}, open: {}, closed: {}", currentScore, open.size(), closed.size());
 
 			if(endFinder.isEnd(currentState)) {
-				lastFoundEnd = currentState;
-
-				if(returnFirstFoundEnd) {
-					return generateEndObject(currentState, previousElements, distances);
+				ends.add(generateEndObject(currentState, previousElements, distances));
+				if(!returnAll) {
+					return ends;
 				}
 			}
 
@@ -100,12 +163,7 @@ public class Dijkstra {
 			iterations++;
 		}
 
-		if(lastFoundEnd != null) {
-			return generateEndObject(lastFoundEnd, previousElements, distances);
-		}
-
-		log.error("Didnt find end point");
-		return new End<>(null, Long.MAX_VALUE, new ArrayList<>());
+		return ends;
 	}
 
 	private static <State> End<State> generateEndObject(State pos, Map<State, State> pre, Map<State, Long> distances) {
