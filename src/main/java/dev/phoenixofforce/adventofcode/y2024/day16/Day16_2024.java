@@ -83,13 +83,13 @@ public class Day16_2024 implements Puzzle {
                 .to(e -> e.getPosition().equals(finalEnd))
                 .generateNextSteps(state -> getNextMoves(isWall, state, solutionPart1))
                 .withAccumulator((state, score) -> state.getScore())
+                .withDebugPrintEveryIteration(5000)
                 .getAll()
                 .stream()
                 .flatMap(e -> e.getPath().stream())
                 .map(State::getPosition)
                 .distinct()
                 .count();
-
     }
 
     private List<State> getNextMoves(Map<Position, Boolean> isWall, State currentState, long part1Solution) {
@@ -122,5 +122,4 @@ public class Day16_2024 implements Puzzle {
 
         return nextStates;
     }
-
 }
