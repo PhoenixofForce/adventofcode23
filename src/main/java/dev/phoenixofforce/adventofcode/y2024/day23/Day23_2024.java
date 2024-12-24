@@ -5,7 +5,6 @@ import dev.phoenixofforce.adventofcode.meta.Puzzle;
 import dev.phoenixofforce.adventofcode.meta.PuzzleInput;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 @Component
 public class Day23_2024 implements Puzzle {
