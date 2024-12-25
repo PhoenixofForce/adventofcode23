@@ -17,6 +17,7 @@ public class PuzzleInput {
     private String file = "";
     private final List<String> lines = new ArrayList<>();
     private final List<String> paragraphs = new ArrayList<>();
+    private final List<List<String>> paragraphsAsList = new ArrayList<>();
 
     public PuzzleInput(int day, int year) {
         try {
@@ -49,19 +50,27 @@ public class PuzzleInput {
 
     private void setup(List<String> linesInput) {
         String currentParagraph = "";
+        List<String> currentParagraphList = new ArrayList<>();
 
         for(String line: linesInput) {
             if(line.isEmpty()) {
                 paragraphs.add(currentParagraph.trim());
                 currentParagraph = "";
+
+                paragraphsAsList.add(currentParagraphList);
+                currentParagraphList = new ArrayList<>();
             }
 
             file += line;
             lines.add(line);
-            if(!line.isEmpty()) currentParagraph += line + " ";
+            if(!line.isEmpty()) {
+                currentParagraph += line + " ";
+                currentParagraphList.add(line);
+            }
         }
 
         if(!currentParagraph.isEmpty()) paragraphs.add(currentParagraph);
+        if(!currentParagraphList.isEmpty()) paragraphsAsList.add(currentParagraphList);
     }
 
     public PuzzleInput mapLines(Function<String, String> mapper) {
