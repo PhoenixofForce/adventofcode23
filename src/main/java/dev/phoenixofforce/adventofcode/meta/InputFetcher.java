@@ -16,7 +16,7 @@ public class InputFetcher {
     @Value("${aoc.session}")
     private String sessionToken;
 
-    public String getInputFromSite(int day, int year) {
+    public String getInputFromSite(int day, int year, boolean logFile) {
         log.info("Fetching Input from Site...");
         if(sessionToken.isEmpty()) {
             log.warn("Session token is empty");
@@ -40,7 +40,7 @@ public class InputFetcher {
                     .block();
 
             if(response != null && response.getStatusCode().is2xxSuccessful()) {
-                log.info("Found input file: \r\n{}", response.getBody());
+                if(logFile) log.info("Found input file: \r\n{}", response.getBody());
                 return response.getBody();
             }
         } catch(Exception ignored) { }
