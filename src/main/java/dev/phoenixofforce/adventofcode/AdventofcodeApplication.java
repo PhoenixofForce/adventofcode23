@@ -108,16 +108,27 @@ public class AdventofcodeApplication {
 			PuzzleInput input = grabInput(day, year, false);
 			DaysSolution solution = solveRiddle(day, year, input, false);
 			solutions.add(solution);
+
+            if(solution == null) continue;
+            System.out.println();
+            System.out.println("=".repeat(50));
+            System.out.println("Day " + dayAsString(day));
+            System.out.println("=".repeat(50));
+            System.out.println();
+
 		}
 
-		for(int day = 0; day < 25; day++) {
-			DaysSolution solution = solutions.get(day);
+		for(int day = 1; day <= 25; day++) {
+			DaysSolution solution = solutions.get(day - 1);
 			if(solution == null) continue;
 
 			System.out.println("Day " + dayAsString(day));
 			System.out.println("\tPart 1(" + parseTime(solution.part1Duration) + "): |" + solution.part1Solution + "|");
 			System.out.println("\tPart 2(" + parseTime(solution.part2Duration) + "): |" + solution.part2Solution + "|");
 		}
+
+        System.out.println();
+        System.out.println("Total: " + parseTime(solutions.stream().mapToDouble(e -> e.part1Duration + e.part2Duration).sum()));
 	}
 
 	private PuzzleInput grabInput(int day, int year, boolean logFiles) {
