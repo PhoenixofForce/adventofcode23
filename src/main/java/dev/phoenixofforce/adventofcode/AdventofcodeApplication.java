@@ -85,7 +85,7 @@ public class AdventofcodeApplication {
 		}
 
 		if(!(lastSolution != null && !lastSolution.isBlank() && !"0".equals(lastSolution))) {
-			System.out.println();
+			log.info("");
 			return;
 		}
 
@@ -97,9 +97,9 @@ public class AdventofcodeApplication {
 		}
 
 		String response = fetcher.postAnswer(day, year, part, lastSolution);
-		System.out.println();
-		System.out.println(response.trim());
-		System.out.println();
+		log.info("");
+		log.info(response.trim());
+		log.info("");
 	}
 
 	public void solveYear(int year) {
@@ -110,11 +110,11 @@ public class AdventofcodeApplication {
 			solutions.add(solution);
 
             if(solution == null) continue;
-            System.out.println();
-            System.out.println("=".repeat(50));
-            System.out.println("Day " + dayAsString(day));
-            System.out.println("=".repeat(50));
-            System.out.println();
+            log.info("");
+            log.info("=".repeat(50));
+            log.info("Day {}", dayAsString(day));
+            log.info("=".repeat(50));
+            log.info("");
 
 		}
 
@@ -122,13 +122,13 @@ public class AdventofcodeApplication {
 			DaysSolution solution = solutions.get(day - 1);
 			if(solution == null) continue;
 
-			System.out.println("Day " + dayAsString(day));
-			System.out.println("\tPart 1(" + parseTime(solution.part1Duration) + "): |" + solution.part1Solution + "|");
-			System.out.println("\tPart 2(" + parseTime(solution.part2Duration) + "): |" + solution.part2Solution + "|");
+            log.info("Day {}", dayAsString(day));
+            log.info("\tPart 1({}): |{}|", parseTime(solution.part1Duration), solution.part1Solution);
+            log.info("\tPart 2({}): |{}|", parseTime(solution.part2Duration), solution.part2Solution);
 		}
 
-        System.out.println();
-        System.out.println("Total: " + parseTime(solutions.stream().mapToDouble(e -> e.part1Duration + e.part2Duration).sum()));
+        log.info("");
+        log.info("Total: {}", parseTime(solutions.stream().mapToDouble(e -> e.part1Duration + e.part2Duration).sum()));
 	}
 
 	private PuzzleInput grabInput(int day, int year, boolean logFiles) {
@@ -178,16 +178,16 @@ public class AdventofcodeApplication {
 	}
 
     private void printHeader(int day, int year) {
-        System.out.println("====================");
-        System.out.println("=    " + dayAsString(day) + ".12." + year + "    =");
-        System.out.println("====================");
+        log.info("====================");
+        log.info("=    {}.12.{}    =", dayAsString(day), year);
+        log.info("====================");
     }
 
 
 	private void printSolution(int part, String solution, double durationInMillis) {
-		System.out.println("Part " + part + " (" + parseTime(durationInMillis) + ")");
-		System.out.println("|" + solution + "|");
-		System.out.println();
+        log.info("Part {} ({})", part, parseTime(durationInMillis));
+        log.info("|{}|", solution);
+		log.info("");
 		Clipboard.save(solution);
 	}
 
