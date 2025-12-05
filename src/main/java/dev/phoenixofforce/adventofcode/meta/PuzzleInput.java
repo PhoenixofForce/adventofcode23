@@ -88,11 +88,15 @@ public class PuzzleInput {
         return getChar(pos.getX(), pos.getY());
     }
 
-    public void setChar(Position pos, char c) {
-        StringBuilder newLine = new StringBuilder(lines.get((int) pos.getY()));
-        newLine.setCharAt((int) pos.getX(), c);
+    public void setChar(long x, long y, char c) {
+        StringBuilder newLine = new StringBuilder(lines.get((int) y));
+        newLine.setCharAt((int) x, c);
 
-        this.lines.set((int) pos.getY(), newLine.toString());
+        this.lines.set((int) y, newLine.toString());
+    }
+
+    public void setChar(Position pos, char c) {
+        this.setChar(pos.getX(), pos.getY(), c);
     }
 
     public char getCharOrElseDot(Position pos) {
