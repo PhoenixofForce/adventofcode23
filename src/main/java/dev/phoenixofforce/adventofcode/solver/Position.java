@@ -46,8 +46,12 @@ public class Position implements Comparable<Position> {
         return new Position(x, y, z);
     }
 
-    public double distance(Position p) {
+    public double distance2hd(Position p) {
         return Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2));
+    }
+
+    public double distance(Position p) {
+        return Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2) + Math.pow(z - p.z, 2));
     }
 
     @Override
