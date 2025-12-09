@@ -123,12 +123,12 @@ public class AdventofcodeApplication {
 			if(solution == null) continue;
 
             log.info("Day {}", dayAsString(day));
-            log.info("\tPart 1({}): |{}|", parseTime(solution.part1Duration), solution.part1Solution);
-            log.info("\tPart 2({}): |{}|", parseTime(solution.part2Duration), solution.part2Solution);
+            log.info("\tPart 1({}): |{}|", TimeUtil.parseTime(solution.part1Duration), solution.part1Solution);
+            log.info("\tPart 2({}): |{}|", TimeUtil.parseTime(solution.part2Duration), solution.part2Solution);
 		}
 
         log.info("");
-        log.info("Total: {}", parseTime(solutions.stream().mapToDouble(e -> e.part1Duration + e.part2Duration).sum()));
+        log.info("Total: {}", TimeUtil.parseTime(solutions.stream().mapToDouble(e -> e.part1Duration + e.part2Duration).sum()));
 	}
 
 	private PuzzleInput grabInput(int day, int year, boolean logFiles) {
@@ -185,32 +185,10 @@ public class AdventofcodeApplication {
 
 
 	private void printSolution(int part, String solution, double durationInMillis) {
-        log.info("Part {} ({})", part, parseTime(durationInMillis));
+        log.info("Part {} ({})", part, TimeUtil.parseTime(durationInMillis));
         log.info("|{}|", solution);
 		log.info("");
 		Clipboard.save(solution);
-	}
-
-	private String parseTime(double timeInMillis) {
-		double millis = timeInMillis;
-		int seconds = (int) Math.floor(timeInMillis / 1000.0);
-		int minutes = (int) Math.floor(seconds / 60.0);
-		int hours = (int) Math.floor(minutes / 60.0);
-
-		millis -= seconds * 1000;
-		seconds -= minutes * 60;
-		minutes -= hours * 60;
-
-		String out = "";
-		if(hours > 0) out += hours + "h   ";
-		if(hours > 0 || minutes > 0) out += minutes + "min   ";
-		if(hours > 0 || minutes > 0 || seconds > 0) out += seconds + "s   ";
-
-		String millisAsString = millis + "";
-		if(millisAsString.contains(".")) millisAsString = millisAsString.substring(0, Math.min(millisAsString.length(), millisAsString.indexOf(".") + 4));
-		out += millisAsString + "ms";
-
-		return out;
 	}
 
     private String dayAsString(int day) {
