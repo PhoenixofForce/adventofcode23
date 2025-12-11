@@ -20,7 +20,7 @@ public class ProgressLogger {
 
         double timeLeft = speed * (max - current);
         String timeFormat = TimeUtil.parseTime(timeLeft);
-        if(current % 100 == 0) log.info("{}% : {} / {} ({} left) = {}", percentFormat, current, max, timeFormat, value);
+        log.info("{}% : {} / {} ({} left) = {}", percentFormat, current, max, timeFormat, value);
     }
 
 }
